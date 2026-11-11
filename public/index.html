@@ -618,7 +618,7 @@ function microList(t) {
 }
 
 function codeNag() {
-  if (S.code || !online() || !Object.keys(S.logs).length) return '';
+  if (S.code || !hasServer() || !Object.keys(S.logs).length) return '';
   var t = 0; try { t = +localStorage.getItem('codeNagAt') || 0; } catch (e) {}
   if (Date.now() - t < 7 * 864e5) return '';
   return '<section class="card nag"><div class="row"><span class="big-emoji">☁️</span><div><b>Proteja sua dieta</b><div class="muted small">Hoje tudo está só neste aparelho. Se trocar ou perder o celular, perde junto. Com o código, fica guardado na internet.</div></div></div>' +
@@ -942,15 +942,17 @@ function scrMais() {
   h += '<p class="muted small center">Valores nutricionais da Tabela TACO (Unicamp) e de rótulos. Este app ajuda no dia a dia, mas não substitui médico ou nutricionista.</p>';
   return h;
 }
+var BACKUP_CARD = '<section class="card form"><h3>Cópia de segurança em arquivo</h3><p class="muted small">Opcional: guarda um arquivo com tudo, no próprio aparelho.</p><div class="btnrow"><button class="btn" data-act="export">⬇️ Salvar arquivo</button><label class="btn">⬆️ Abrir arquivo<input type="file" accept="application/json" id="imp" hidden></label></div></section>';
 function scrCodigo() {
   var h = backHead('Meu código da dieta');
+  if (!SERVER) return h + '<section class="card"><p>Nesta versão a dieta fica salva <b>só neste aparelho</b>, sem código na internet. Para guardar uma cópia ou levar para outro celular, salve um arquivo e abra no outro aparelho.</p></section>' + BACKUP_CARD;
   h += '<section class="card"><p>O código guarda a dieta, as marcações e o peso <b>na internet</b>. Com ele dá para abrir a mesma dieta em outro celular ou computador, ou recuperar se trocar de aparelho.</p>';
   if (S.code) {
     h += '<div class="codebox"><small>Seu código</small><b>' + S.code + '</b><button class="btn sm" data-act="copyCode">Copiar</button></div><p class="muted small center" id="syncst">' + syncText() + '</p>' +
       '<div class="alert">📝 Anote este código num lugar seguro. Quem tiver o código consegue ver e alterar a dieta.</div><button class="btn full" data-act="pushNow">☁️ Salvar agora</button>';
   } else h += '<button class="btn primary big full" data-act="makeCode">☁️ Criar meu código</button><p class="muted small center">Depois disso, tudo é salvo sozinho a cada alteração.</p>';
   h += '</section><section class="card form"><h3>Recuperar dieta</h3><p class="muted small">Já tem um código? Digite aqui para trazer a dieta para este aparelho.</p><input id="rc" placeholder="XXXX-XXXX-XXXX" autocapitalize="characters" autocomplete="off" spellcheck="false"><button class="btn primary full" data-act="recover">Recuperar</button></section>';
-  h += '<section class="card form"><h3>Cópia de segurança em arquivo</h3><p class="muted small">Opcional: guarda um arquivo com tudo, no próprio aparelho.</p><div class="btnrow"><button class="btn" data-act="export">⬇️ Salvar arquivo</button><label class="btn">⬆️ Abrir arquivo<input type="file" accept="application/json" id="imp" hidden></label></div></section>';
+  h += BACKUP_CARD;
   return h;
 }
 function scrInstalar() {
@@ -958,7 +960,7 @@ function scrInstalar() {
   var h = backHead('Instalar no iPhone');
   if (standalone) h += '<section class="card"><b>✅ O app já está instalado.</b><p class="muted">Abra sempre pelo ícone “Dieta” na tela de início.</p></section>';
   h += '<section class="card steps"><ol>' +
-    '<li><span>1</span><div>Abra este endereço no <b>Safari</b>:<br><b class="url">' + esc(location.host || 'o endereço do app') + '</b></div></li>' +
+    '<li><span>1</span><div>Abra este endereço no <b>Safari</b>:<br><b class="url">' + esc((location.host + location.pathname.replace(/[^\/]*$/, '')) || 'o endereço do app') + '</b></div></li>' +
     '<li><span>2</span><div>Toque no botão <b>Compartilhar</b> (o quadrado com uma seta para cima) na barra de baixo.</div></li>' +
     '<li><span>3</span><div>Role a lista e toque em <b>Adicionar à Tela de Início</b>.</div></li>' +
     '<li><span>4</span><div>Toque em <b>Adicionar</b>. O ícone verde <b>Dieta</b> aparece na tela.</div></li>' +
@@ -1268,7 +1270,7 @@ document.addEventListener('focusin', function (e) { var t = e.target; if (t.getA
 var PUSH_API = '/api/push', planT = null;
 function isIOS() { return /iPhone|iPad|iPod/.test(navigator.userAgent || ''); }
 function isStandalone() { return !!(window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)); }
-function pushSupported() { return online() && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
+function pushSupported() { return hasServer() && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window; }
 function pushActive() { try { return S.settings.notif && localStorage.getItem('pushOn') === '1'; } catch (e) { return false; } }
 function b64u(t) { var p = '===='.slice(0, (4 - t.length % 4) % 4), b = atob((t + p).replace(/-/g, '+').replace(/_/g, '/')), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
 function pushPlan() {
@@ -1326,13 +1328,15 @@ setInterval(checkReminders, 30000);
 
 // ---------- código da dieta (Netlify) ----------
 var API = '/api/dieta', pushT = null, sync = {st:'', at:0};
+var SERVER = !/\.github\.io$/.test(location.hostname); // no GitHub Pages não há servidor: tudo fica no aparelho
 function online() { return location.protocol.indexOf('http') === 0; }
+function hasServer() { return online() && SERVER; }
 function genCode() { var al = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789', b = new Uint8Array(12), c = ''; crypto.getRandomValues(b); for (var i = 0; i < 12; i++) { c += al[b[i] % al.length]; if (i === 3 || i === 7) c += '-'; } return c; }
 function syncText() { if (!sync.st) return 'Salvo automaticamente a cada alteração.'; var t = new Date(sync.at); var hm = pad(t.getHours()) + ':' + pad(t.getMinutes()); return sync.st === 'ok' ? '✓ Salvo na internet às ' + hm : sync.st === 'env' ? 'Salvando…' : '⚠️ Sem internet às ' + hm + '. Está salvo no aparelho e envio quando voltar.'; }
 function updSync() { var el = $('#syncst'); if (el) el.textContent = syncText(); }
 function schedulePush() { if (!S.code) return; clearTimeout(pushT); pushT = setTimeout(push, 1500); }
 function push(loud) {
-  if (!S.code || !online()) return;
+  if (!S.code || !hasServer()) return;
   sync = {st:'env', at:Date.now()}; updSync();
   pull(S.code).then(function (rem) { if (rem) applyMerge(rem); return fetch(API + '?codigo=' + S.code, {method:'PUT', headers:{'content-type':'application/json'}, body:JSON.stringify(S)}); }).then(function (r) { if (!r.ok) throw 0; sync = {st:'ok', at:Date.now()}; updSync(); if (loud) { toast('☁️ Salvo na internet'); render(); } })
     .catch(function () { sync = {st:'err', at:Date.now()}; updSync(); if (loud) { toast('⚠️ Sem internet agora. Fica salvo no aparelho.'); render(); } });
@@ -1359,7 +1363,7 @@ function applyMerge(rem) {
 function markLog(k) { var l = ensureLog(k); l.u = Date.now(); return l; }
 function pull(code) { return fetch(API + '?codigo=' + encodeURIComponent(code), {cache:'no-store'}).then(function (r) { if (r.status === 404) return null; if (!r.ok) throw 0; return r.json(); }); }
 function syncOnOpen() {
-  if (!S.code || !online()) return;
+  if (!S.code || !hasServer()) return;
   pull(S.code).then(function (rem) {
     if (!rem) { push(); return; }
     var changed = applyMerge(rem); sync = {st:'ok', at:Date.now()}; updSync();
