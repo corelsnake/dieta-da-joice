@@ -1,0 +1,27 @@
+#app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+.side{background:#fff;padding:24px 18px;display:flex;flex-direction:column;gap:18px;position:sticky;top:0;height:100vh;border-right:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.1rem}.logo span{width:42px;height:42px;border-radius:14px;background:var(--soft);display:grid;place-items:center;font-size:1.4rem}
+.side nav{display:flex;flex-direction:column;gap:4px}.side nav button{display:flex;align-items:center;gap:12px;border:0;background:none;padding:12px 14px;border-radius:14px;font-weight:600;color:var(--mu);text-align:left}.side nav button.on{background:var(--deep);color:#fff}.side nav button:hover:not(.on){background:var(--track)}
+.sidetip{margin-top:auto;background:var(--soft);border-radius:18px;padding:14px;font-size:.88rem}.sidetip p{margin:6px 0 0}.alt{color:var(--mu);font-size:.85rem;text-align:center}
+.dmainwrap{padding:28px 36px;max-width:1240px}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:20px;align-items:start}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}.pgrid .card{margin:0}
+.days{grid-template-columns:repeat(3,1fr)}.presets{grid-template-columns:repeat(3,1fr)}
+.cups{grid-template-columns:repeat(5,1fr)}
+.wgrid{grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.opts{grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}.modal .presets.opts{grid-template-columns:1fr 1fr}
+.ov.center{align-items:center;padding:24px}.modal{background:var(--bg);border-radius:28px;width:100%;max-width:640px;max-height:92vh;overflow:auto;padding:20px}.modal.narrow{max-width:460px;padding:0}
+.modal .presets{grid-template-columns:1fr}.sheet{border-radius:28px;margin-bottom:auto;margin-top:8vh}
+.ov:not(.center){align-items:flex-start}
+.toast{bottom:28px}
+.dmainwrap>.wgrid,.dmainwrap>.sintro,.dmainwrap>.ptitle,.dmainwrap>.card,.dmainwrap>.sechead,.dmainwrap>.cups,.dmainwrap>#flist,.dmainwrap>.search,.dmainwrap>.more{max-width:900px}
+/* segurança: se a versão web for aberta numa tela estreita, vira uma coluna só */
+@media (max-width:899px){
+#app{display:block}
+.side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding:16px}
+.side nav{flex-direction:row;flex-wrap:wrap}.side nav button{padding:8px 10px}
+.sidetip{display:none}
+.dmainwrap{padding:16px}
+.dgrid,.pgrid,.days,.presets,.cols,.wgrid,.opts,.modal .opts{grid-template-columns:1fr}
+.cups{grid-template-columns:repeat(3,1fr)}
+}

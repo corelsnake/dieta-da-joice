@@ -1,0 +1,10 @@
+#app{max-width:520px;margin:0 auto}
+.screen{padding:calc(16px + env(safe-area-inset-top)) 16px calc(120px + env(safe-area-inset-bottom))}
+.bnav{position:fixed;bottom:0;left:0;right:0;margin:0 auto;width:100%;max-width:520px;display:flex;align-items:center;background:#fff;border-radius:26px 26px 0 0;box-shadow:0 -4px 20px rgba(30,60,40,.08);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:40;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.bnav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#97A398;font-size:.74rem;font-weight:600;min-height:54px;justify-content:center}.bnav button.on{color:var(--deep)}
+.bnav .fab{flex:none;width:64px;height:64px;border-radius:50%;background:var(--lime);color:var(--deep);margin:-30px 6px 0;box-shadow:0 8px 20px rgba(155,210,91,.55);border:5px solid var(--bg)}
+.foodpage{margin:calc(-16px - env(safe-area-inset-top)) -16px 0}.fhead{border-radius:0;min-height:240px;padding:calc(16px + env(safe-area-inset-top)) 16px 16px}.fbody{border-radius:28px 28px 0 0;min-height:60vh}
+.toast{bottom:calc(100px + env(safe-area-inset-bottom))}
+
+/* selo "Powered by Netlify" fica acima da barra de baixo, para não cobrir o botão Mais */
+#nl-badge-frame{bottom:calc(86px + env(safe-area-inset-bottom)) !important}
